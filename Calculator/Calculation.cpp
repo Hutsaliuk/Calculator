@@ -285,3 +285,15 @@ int Calculation::countExpressionsInBrackets(std::string const & str) //calculate
 
 	return count;
 }
+
+void Calculation::removeSpaces(std::string & str)
+{
+	for (size_t i = 0; i < str.length(); i++)
+	{
+		if (str[i] == ' ')
+		{
+			str.erase(i, 1);
+			i--;	//if there is spaces in the begining, 'i' became "negative", but in real thay have garbage instead negative number. Shoud I use "int" instead of "size_t" ??
+		}
+	}
+}

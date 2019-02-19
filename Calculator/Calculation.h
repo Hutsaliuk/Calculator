@@ -12,5 +12,6 @@ namespace Calculation
 	double doOperation(double const &arg1, double const &arg2, int const &oper, std::string &error);
 	double formNumber(std::string const &e, size_t &i, std::string &error);
 	int countExpressionsInBrackets(std::string const &str);
+	void removeSpaces(std::string &str);
 };
 #endif // CALCULATION_H

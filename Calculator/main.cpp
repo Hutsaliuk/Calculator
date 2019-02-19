@@ -3,23 +3,24 @@
 #include "ErrorProcessing.h"
 #include <iostream>
 
-using std::cout;
-using std::endl;
+using namespace std;
 
 void main()
 {
-	std::string expr; //user input expression
+	string expr; //user input expression
+	string error;
 	double tmpAnswer = 0;
 	int subExprCount = 0; // amount of expressions in brackets
-	std::string error;
-	bool e = false; //exit flag
 	cout << "Enter an expression for calculation!" << endl;
 	cout << "Enter \"e\" for close programm." << endl << endl;
 	
-	while (!e)
+	while (true)
 	{
 		error = "";
-		std::cin >> expr;
+		getline(cin, expr);
+
+		Calculation::removeSpaces(expr);
+
 		if ((expr != "E") && (expr != "e"))
 		{
 			if (AdditionChecks::checkChars(expr, error) && AdditionChecks::checkBrackets(expr, error))
@@ -42,7 +43,7 @@ void main()
 		}
 		else
 		{
-			e = true;
+			break;
 		}
 	}
 }
