@@ -7,38 +7,47 @@ using namespace std;
 
 void main()
 {
-	string expr; //user input expression
-	string error;
-	double tmpAnswer = 0;
-	int subExprCount = 0; // amount of expressions in brackets
+
 	cout << "Enter an expression for calculation!" << endl;
 	cout << "Enter \"e\" for close programm." << endl << endl;
 	
 	while (true)
 	{
-		error = "";
+		string expr; //user input expression
+
 		getline(cin, expr);
 
 		Calculation::removeSpaces(expr);
 
 		if ((expr != "E") && (expr != "e"))
 		{
-			if (AdditionChecks::checkChars(expr, error) && AdditionChecks::checkBrackets(expr, error))
+			Error error = AdditionChecks::checkChars(expr);
+
+			if (!(int)error.errorCode)
 			{
-				subExprCount = Calculation::countExpressionsInBrackets(expr);
-				tmpAnswer = Calculation::openBrackets(expr, subExprCount, error); //Start calculating 
-				if (error.empty())
+				error = AdditionChecks::checkBrackets(expr);
+
+				if (!(int)error.errorCode)
 				{
-					cout << "Answer: " << tmpAnswer << endl << endl; //if there is no errors - show answer
+					int subExprCount = Calculation::countExpressionsInBrackets(expr); 
+					double tmpAnswer = Calculation::openBrackets(expr, subExprCount, error); //Start calculating 
+					if (!(int)error.errorCode)
+					{
+						cout << "Answer: " << tmpAnswer << endl << endl; //if there is no errors - show answer
+					}
+					else
+					{
+						error.showError();
+					}
 				}
 				else
 				{
-					ErrorProcessing::showError(error);
+					error.showError();
 				}
 			}
 			else
 			{
-				ErrorProcessing::showError(error);
+				error.showError();
 			}
 		}
 		else

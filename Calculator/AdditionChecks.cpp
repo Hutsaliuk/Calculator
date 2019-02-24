@@ -1,38 +1,41 @@
 #include "AdditionChecks.h"
 #include "ErrorProcessing.h"
 
-using std::string;
-using std::to_string;
+using namespace std;
 
-bool AdditionChecks::checkChars(string const &str, string &error) //checking for unrestricted characters
+Error AdditionChecks::checkChars(string const &str) //checking for unrestricted characters
 {
+	Error error;
+
 	for (size_t i = 0; i < str.length(); i++)
 	{
 		if (!isdigit(str[i]) && (str[i] != '+') && (str[i] != '-') &&
 			(str[i] != '*') && (str[i] != '/') && (str[i] != '(') &&
 			(str[i] != ')') && (str[i] != '^') && (str[i] != '.') && (str[i] != 'e'))
 		{
-			error = to_string(ErrorProcessing::eInvalidCharacter) + to_string(i+1);
-			//cout << "Invalid character: " << str[i] << endl << endl;
-			return false;
+			error.errorCode = Error::Errors::eInvalidCharacter;
+			error.errorPosition = (i + 1);
+			break;
 		}
 	}
 
-	return true;
+	return error;
 }
 
-bool AdditionChecks::checkBrackets(string const & str, string &error)  //checking for unpair brackets
+Error AdditionChecks::checkBrackets(string const &str)  //checking for unpair brackets
 {
+	Error error;
+
 	int brackets = 0;
 
-	for (size_t i = 0; i < str.length(); i++)
+	for (char c : str)
 	{
-		if (str[i] == '(')
+		if (c == '(')
 		{
 			brackets++;
 		}
 
-		if (str[i] == ')')
+		if (c == ')')
 		{
 			brackets--;
 		}
@@ -40,87 +43,55 @@ bool AdditionChecks::checkBrackets(string const & str, string &error)  //checkin
 
 	if (brackets > 0)
 	{
-		error = to_string(ErrorProcessing::eTooMuchOpenBrackets);
-		//cout << "Error with brackets! \n\n";
-		return false;
+		error.errorCode = Error::Errors::eTooMuchOpenBrackets;
+		return error;
 	}
 	else if (brackets < 0)
 	{
-		error = to_string(ErrorProcessing::eTooMuchCloseBrackets);
-		return false;
+		error.errorCode = Error::Errors::eTooMuchCloseBrackets;
+		return error;
 	}
 
-	return true;
+	return error;
 }
 
 //check, if the resoult will be too big for type 'double' show error message
-bool AdditionChecks::checkAdition(double const &arg1, double const &arg2, string &error)
+bool AdditionChecks::checkAdition(double const &arg1, double const &arg2)
 {
-	if ((((arg1 + arg2) > DBL_MIN) && ((arg1 + arg2) < DBL_MAX)) || 
-		(((arg1 + arg2) > -DBL_MAX) && ((arg1 + arg2) < -DBL_MIN)) || ((arg1 + arg2) == 0))
+	if (arg1 >= 0)
 	{
-		return true;
+		return (arg2 < (DBL_MAX - arg1)) ? true : false;
 	}
 	else
 	{
-		error = to_string(ErrorProcessing::eTooBigResoult);
-		return false;
+		return (arg2 > (-DBL_MAX - arg1)) ? true : false;
 	}
 }
 
-bool AdditionChecks::checkSubtraction(double const &arg1, double const &arg2, string &error)
+bool AdditionChecks::checkSubtraction(double const &arg1, double const &arg2)
 {
-	if ((((arg1 - arg2) > DBL_MIN) && ((arg1 - arg2) < DBL_MAX)) ||
-		(((arg1 - arg2) > -DBL_MAX) && ((arg1 - arg2) < -DBL_MIN)) || ((arg1 + arg2) == 0))
+	if (arg1 >= 0)
 	{
-		return true;
+		return (arg2 > (-DBL_MAX + arg1)) ? true : false;
 	}
 	else
 	{
-		error = to_string(ErrorProcessing::eTooBigResoult);
-		return false;
+		return (arg2 < (DBL_MAX + arg1)) ? true : false;
 	}
 }
 
-bool AdditionChecks::checkMultiplication(double const &arg1, double const &arg2, string &error)
+bool AdditionChecks::checkMultiplication(double const &arg1, double const &arg2)
 {
-	if ((((arg1 * arg2) > DBL_MIN) && ((arg1 * arg2) < DBL_MAX)) ||
-		(((arg1 * arg2) > -DBL_MAX) && ((arg1 * arg2) < -DBL_MIN)) || ((arg1 + arg2) == 0))
-	{
-		return true;
-	}
-	else
-	{
-		error = to_string(ErrorProcessing::eTooBigResoult);
-		return false;
-	}
+	return (abs(arg2) < (DBL_MAX / abs(arg1))) ? true : false;
 }
 
-bool AdditionChecks::checkDivision(double const &arg1, double const &arg2, string &error)
+bool AdditionChecks::checkDivision(double const &arg1, double const &arg2)
 {
-	if ((((arg1 / arg2) > DBL_MIN) && ((arg1 / arg2) < DBL_MAX)) ||
-		(((arg1 / arg2) > -DBL_MAX) && ((arg1 / arg2) < -DBL_MIN)) || ((arg1 + arg2) == 0))
-	{
-		return true;
-	}
-	else
-	{
-		error = to_string(ErrorProcessing::eTooBigResoult);
-		return false;
-	}
+	return true; // temporary
 }
 
-bool AdditionChecks::checkExponentiation(double const &arg1, double const &arg2, string &error)
+bool AdditionChecks::checkExponentiation(double const &arg1, double const &arg2)
 {
-	if (((pow(arg1, arg2) > DBL_MIN) && (pow(arg1, arg2) < DBL_MAX)) ||
-		((pow(arg1, arg2) > -DBL_MAX) && (pow(arg1, arg2) < -DBL_MIN)) || ((arg1 + arg2) == 0))
-	{
-		return true;
-	}
-	else
-	{
-		error = to_string(ErrorProcessing::eTooBigResoult);
-		return false;
-	}
+	return true; //temporary
 }
 

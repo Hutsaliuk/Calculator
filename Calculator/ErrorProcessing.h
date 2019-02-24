@@ -1,13 +1,14 @@
 #ifndef ERRORPROCESSING_H
 #define ERRORPROCESSING_H
 
-#include <string>
-
-namespace ErrorProcessing
+struct Error
 {
-	enum errors
+	Error();
+
+	const enum class Errors
 	{
-		eInvalidCharacter = 10,
+		eNoError,
+		eInvalidCharacter,
 		eTooMuchOpenBrackets,
 		eTooMuchCloseBrackets,
 		eTooBigResoult,
@@ -17,7 +18,11 @@ namespace ErrorProcessing
 		eWrongBrackets,
 		eOperationMissing
 	};
-	void showError(std::string const &error);
+
+	Errors errorCode;
+	size_t errorPosition;
+
+	void showError();
 };
 
 #endif // ERRORPROCESSING_H

@@ -2,20 +2,27 @@
 #include "AdditionChecks.h"
 #include "ErrorProcessing.h"
 
-using std::string;
-using std::vector;
-using std::to_string;
+using namespace std;
 
-double Calculation::openBrackets(string &e, int &sub_expr_count, string &error) //Getting expression in brackets and replace them by number
+const enum OperationSigns
 {
-	int openPos = 0;
-	int closePos = 0;
+	adition = 1, // +
+	subtraction, // -
+	multiplication, // *
+	division, // /
+	exponentiation // ^
+};
+
+double Calculation::openBrackets(string &e, int &sub_expr_count, Error &error) //Getting expression in brackets and replace them by number
+{
 	double tmpAnsw;
-	string tmpstr; //substring that we can calculate
-	bool found = false;
 
 	do
 	{
+		size_t openPos = 0;
+		size_t closePos = 0;
+		bool found = false;
+
 		for (size_t i = 0; i < e.length(); i++)
 		{
 			if (e[i] == '(')
@@ -27,7 +34,8 @@ double Calculation::openBrackets(string &e, int &sub_expr_count, string &error) 
 				}
 				else
 				{
-					error = to_string(ErrorProcessing::eOperationMissing) + to_string(i);
+					error.errorCode = Error::Errors::eOperationMissing;
+					error.errorPosition = (i);
 					break;
 				}
 			}
@@ -36,7 +44,7 @@ double Calculation::openBrackets(string &e, int &sub_expr_count, string &error) 
 				if ((i == e.length()) || ((i < e.length()) && (!isdigit(e[i+1])))) //check if there is some operation after brackets
 				{
 					closePos = i;
-					tmpstr = e.substr(openPos + 1, (i - openPos) - 1); //Get expression in brackets
+					string tmpstr = e.substr(openPos + 1, (i - openPos) - 1); //Get expression in brackets
 					tmpAnsw = breakApart(tmpstr, error); //Calculating part of expression
 					e = e.substr(0, openPos) + std::to_string(tmpAnsw) + e.substr(closePos + 1, (e.length() - closePos)); //raplace extension in brackets by number
 					sub_expr_count--;
@@ -44,7 +52,8 @@ double Calculation::openBrackets(string &e, int &sub_expr_count, string &error) 
 				}
 				else
 				{
-					error = to_string(ErrorProcessing::eOperationMissing) + to_string(i+1);
+					error.errorCode = Error::Errors::eOperationMissing;
+					error.errorPosition = i + 1;
 					break;
 				}
 			}
@@ -52,26 +61,22 @@ double Calculation::openBrackets(string &e, int &sub_expr_count, string &error) 
 
 		if (openPos > closePos)
 		{
-			error = to_string(ErrorProcessing::eWrongBrackets);
+			error.errorCode = Error::Errors::eWrongBrackets;
 		}
 
-		found = false;
-		openPos = 0;
-		closePos = 0;
-
-		if (!error.empty())
+		if ((int)error.errorCode)
 		{
 			break;
 		}
 
 	} while (sub_expr_count > 0);
 
-	if (error.empty())
+	if (!(int)error.errorCode)
 	{
 		tmpAnsw = breakApart(e, error);
 	}
 
-	if (error.empty())
+	if (!(int)error.errorCode)
 	{
 		return tmpAnsw;
 	}
@@ -79,16 +84,7 @@ double Calculation::openBrackets(string &e, int &sub_expr_count, string &error) 
 	return 0;
 }
 
-enum operationSigns
-{
-	adition = 1, // +
-	subtraction, // -
-	multiplication, // *
-	division, // /
-	exponentiation // ^
-};
-
-double Calculation::breakApart(string const &e, std::string &error)
+double Calculation::breakApart(string const &e, Error &error)
 {
 	vector<int> operations(e.length(), 0); //vector of operations
 	vector<double> numbers(e.length(), 0); //vector of numbers
@@ -99,21 +95,24 @@ double Calculation::breakApart(string const &e, std::string &error)
 	{
 		if (isdigit(e[i]))	numbers[numberCount++] = Calculation::formNumber(e, i, error);
 
-		if ((e[i] == '+') && (i > 0) && (i < e.length()) && (isdigit(e[i - 1])))	operations[operationCount++] = adition;
-		else if ((e[i] == '-') && (i > 0) && (i < e.length()) && (isdigit(e[i - 1])))	operations[operationCount++] = subtraction;
-		else if ((e[i] == '-') && (i > 0) && (i < e.length()) && (isdigit(e[i + 1]))) {}//additional check, to avoid error if there is two '-' (one is the subtraction operation, second - negative number		}
-		else if ((e[i] == '*') && (i > 0) && (i < e.length()) && (isdigit(e[i - 1])))	operations[operationCount++] = multiplication;
-		else if ((e[i] == '/') && (i > 0) && (i < e.length()) && (isdigit(e[i - 1]))) operations[operationCount++] = division;
-		else if ((e[i] == '^') && (i > 0) && (i < e.length()) && (isdigit(e[i - 1])))	operations[operationCount++] = exponentiation;
+		bool smallCheck = ((i > 0) && (i < e.length())) ? true : false; //small check to avoid repetitions 
+
+		if ((e[i] == '+') && smallCheck && (isdigit(e[i - 1])))	operations[operationCount++] = adition;
+		else if ((e[i] == '-') && smallCheck && (isdigit(e[i - 1])))	operations[operationCount++] = subtraction;
+		else if ((e[i] == '-') && smallCheck && (isdigit(e[i + 1]))) {}//additional check, to avoid error if there is two '-' (one is the subtraction operation, second - negative number		}
+		else if ((e[i] == '*') && smallCheck && (isdigit(e[i - 1])))	operations[operationCount++] = multiplication;
+		else if ((e[i] == '/') && smallCheck && (isdigit(e[i - 1]))) operations[operationCount++] = division;
+		else if ((e[i] == '^') && smallCheck && (isdigit(e[i - 1])))	operations[operationCount++] = exponentiation;
 		else if ((e[i] == '-') && (i == 0) && (isdigit(e[i + 1]))) {}//additional check, if '-' is at the beginning of the expression
 		else if (i < e.length())
 		{
-			error = to_string(ErrorProcessing::eIncorrectSyntax) + to_string(i + 1);
+			error.errorCode = Error::Errors::eIncorrectSyntax;
+			error.errorPosition = i + 1;
 			break;
 		}
 	}
 
-	if (error.empty()) //if there is no errors continue calculating
+	if (!(int)error.errorCode) //if there is no errors continue calculating
 	{
 		return calculate(operations, numbers, operationCount, numberCount, error);
 	}
@@ -121,14 +120,13 @@ double Calculation::breakApart(string const &e, std::string &error)
 	return 0;
 }
 
-double Calculation::calculate(vector<int> &oper, vector<double> &num, int & oper_count, int &num_count, std::string &error) //step by step calculation of expression, according to the priorities of operations
+double Calculation::calculate(vector<int> &oper, vector<double> &num, int & oper_count, int &num_count, Error &error) //step by step calculation of expression, according to the priorities of operations
 {
-	int operationPriority; //operation, that will be counted next. If there is no more priority operation (*, /, ^), calculated the first
 	bool hasExponentiation = true;
 
 	while (num_count > 1)
 	{
-		operationPriority = 0;
+		int operationPriority = 0;  //operation, that will be counted next. If there is no more priority operation (*, /, ^), calculated the first
 		if (hasExponentiation)
 		{
 			for (size_t i = 0; i < oper_count; i++)
@@ -173,58 +171,84 @@ double Calculation::calculate(vector<int> &oper, vector<double> &num, int & oper
 }
 
 //count one operation
-double Calculation::doOperation(double const &arg1, double const &arg2, int const &oper, std::string &error)
+double Calculation::doOperation(double const &arg1, double const &arg2, int const &oper, Error &error)
 {
 	switch (oper)
 	{
-	case adition:
-	{
-		if (AdditionChecks::checkAdition(arg1, arg2, error))
+		case adition:
 		{
-			return (arg1 + arg2);
+			if (AdditionChecks::checkAdition(arg1, arg2))
+			{
+				return (arg1 + arg2);
+			}
+			else
+			{
+				error.errorCode = Error::Errors::eTooBigResoult;
+				return 0;
+			}
+			break;
 		}
-		break;
-	}
-	case subtraction:
-	{
-		if (AdditionChecks::checkSubtraction(arg1, arg2, error))
+		case subtraction:
 		{
-			return (arg1 - arg2);
+			if (AdditionChecks::checkSubtraction(arg1, arg2))
+			{
+				return (arg1 - arg2);
+			}
+			else
+			{
+				error.errorCode = Error::Errors::eTooBigResoult;
+				return 0;
+			}
+			break;
 		}
-		break;
-	}
-	case multiplication:
-	{
-		if (AdditionChecks::checkMultiplication(arg1, arg2, error))
+		case multiplication:
 		{
-			return (arg1 * arg2);
+			if (AdditionChecks::checkMultiplication(arg1, arg2))
+			{
+				return (arg1 * arg2);
+			}
+			else
+			{
+				error.errorCode = Error::Errors::eTooBigResoult;
+				return 0;
+			}
+			break;
 		}
-		break;
-	}
-	case division:
-	{
-		if (AdditionChecks::checkDivision(arg1, arg2, error))
+		case division:
 		{
-			return (arg1 / arg2);
+			if (AdditionChecks::checkDivision(arg1, arg2))
+			{
+				return (arg1 / arg2);
+			}
+			else
+			{
+				error.errorCode = Error::Errors::eTooBigResoult;
+				return 0;
+			}
+			break;
 		}
-		break;
-	}
-	case exponentiation:
-	{
-		if (AdditionChecks::checkExponentiation(arg1, arg2, error))
+		case exponentiation:
 		{
-			return pow(arg1, arg2);
+			if (AdditionChecks::checkExponentiation(arg1, arg2))
+			{
+				return pow(arg1, arg2);
+			}
+			else
+			{
+				error.errorCode = Error::Errors::eTooBigResoult;
+				return 0;
+			}
+			break;
 		}
-		break;
-	}
-	default:
-	{
-		error = to_string(ErrorProcessing::eUnknownOperation);
-	}
+		default:
+		{
+			error.errorCode = Error::Errors::eUnknownOperation;
+			return 0;
+		}
 	}
 }
 
-double Calculation::formNumber(string const &e, size_t &i, std::string &error)
+double Calculation::formNumber(string const &e, size_t &i, Error &error)
 {
 	bool hasDot = false; //number already has dot
 	bool hasE = false;
@@ -261,7 +285,8 @@ double Calculation::formNumber(string const &e, size_t &i, std::string &error)
 		}
 		else
 		{
-			error = to_string(ErrorProcessing::eFormingNumber) + to_string(i+1);
+			error.errorCode = Error::Errors::eFormingNumber;
+			error.errorPosition = i + 1;
 			break;
 		}
 
