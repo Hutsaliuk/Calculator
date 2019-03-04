@@ -5,7 +5,7 @@
 
 using namespace std;
 
-void main()
+int main()
 {
 
 	cout << "Enter an expression for calculation!" << endl;
@@ -55,4 +55,5 @@ void main()
 			break;
 		}
 	}
+    return 0;
 }

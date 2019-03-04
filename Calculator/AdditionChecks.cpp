@@ -1,6 +1,8 @@
 #include "AdditionChecks.h"
 #include "ErrorProcessing.h"
 
+#include <cfloat>
+
 using namespace std;
 
 Error AdditionChecks::checkChars(string const &str) //checking for unrestricted characters

@@ -1,11 +1,13 @@
 #ifndef ERRORPROCESSING_H
 #define ERRORPROCESSING_H
 
+#include <cstddef>
+
 struct Error
 {
 	Error();
 
-	const enum class Errors
+    enum class Errors
 	{
 		eNoError,
 		eInvalidCharacter,

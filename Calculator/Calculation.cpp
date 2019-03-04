@@ -1,10 +1,11 @@
 #include "Calculation.h"
 #include "AdditionChecks.h"
 #include "ErrorProcessing.h"
+#include <cmath>
 
 using namespace std;
 
-const enum OperationSigns
+enum OperationSigns
 {
 	adition = 1, // +
 	subtraction, // -
