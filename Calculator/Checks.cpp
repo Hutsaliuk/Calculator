@@ -1,6 +1,7 @@
 #include "Checks.h"
 #include "ErrorProcessing.h"
 
+#include <cmath>
 #include <cfloat>
 
 using namespace std;
@@ -86,11 +87,18 @@ bool Checks::multiplication(double const &arg1, double const &arg2)
 
 bool Checks::division(double const &arg1, double const &arg2)
 {
-	return true; // temporary
+    return (abs(arg1) > (DBL_MIN * abs(arg2)));
 }
 
 bool Checks::exponentiation(double const &arg1, double const &arg2)
 {
-	return true; //temporary
+    if (arg2 > 0.0)
+    {
+        return (abs(arg1) < DBL_MAX / pow(arg1, arg2 - 1));
+    }
+    else
+    {
+        return (abs(arg1) > DBL_MIN / pow(arg1, arg2 -1));
+    }
 }
 
