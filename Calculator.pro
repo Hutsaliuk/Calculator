@@ -4,19 +4,17 @@
 #TARGET = Calculator
 
 HEADERS = \
-   $$PWD/Calculator/AdditionChecks.h \
+   $$PWD/Calculator/Checks.h \
    $$PWD/Calculator/Calculation.h \
    $$PWD/Calculator/ErrorProcessing.h \
-   $$PWD/Calculator/resource.h
 
 SOURCES = \
-   $$PWD/Calculator/AdditionChecks.cpp \
+   $$PWD/Calculator/Checks.cpp \
    $$PWD/Calculator/Calculation.cpp \
    $$PWD/Calculator/ErrorProcessing.cpp \
-   $$PWD/Calculator/main.cpp
+   $$PWD/Calculator/main.cpp \
 
 INCLUDEPATH = \
-    $$PWD/Calculator
 
 #DEFINES = 
 

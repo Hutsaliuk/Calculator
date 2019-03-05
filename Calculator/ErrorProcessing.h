@@ -5,26 +5,26 @@
 
 struct Error
 {
-	Error();
-
-    enum class Errors
+    enum class Codes
 	{
-		eNoError,
+        eOK,
 		eInvalidCharacter,
-		eTooMuchOpenBrackets,
-		eTooMuchCloseBrackets,
-		eTooBigResoult,
+        eTooMuchOpeningBrackets,
+        eTooMuchClosingBrackets,
+        eWrongBrackets,
+        eTooBigResult,
 		eIncorrectSyntax,
 		eUnknownOperation,
 		eFormingNumber,
-		eWrongBrackets,
-		eOperationMissing
+        eMissingOperation
 	};
 
-	Errors errorCode;
-	size_t errorPosition;
+    Codes code;
+    size_t position;
 
+    Error();
 	void showError();
+    operator bool() const;
 };
 
 #endif // ERRORPROCESSING_H

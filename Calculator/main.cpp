@@ -1,7 +1,8 @@
 #include "Calculation.h"
-#include "AdditionChecks.h"
+#include "Checks.h"
 #include "ErrorProcessing.h"
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 
@@ -17,21 +18,21 @@ int main()
 
 		getline(cin, expr);
 
-		Calculation::removeSpaces(expr);
+        expr.erase(remove(expr.begin(), expr.end(), ' '), expr.end());
 
 		if ((expr != "E") && (expr != "e"))
 		{
-			Error error = AdditionChecks::checkChars(expr);
+            Error error = Checks::Chars(expr);
 
-			if (!(int)error.errorCode)
+            if (!error)
 			{
-				error = AdditionChecks::checkBrackets(expr);
+                error = Checks::brackets(expr);
 
-				if (!(int)error.errorCode)
+                if (!error)
 				{
-					int subExprCount = Calculation::countExpressionsInBrackets(expr); 
+                    long subExprCount = count(expr.begin(), expr.end(), '('); //Calculation::countExpressionsInBrackets(expr);
 					double tmpAnswer = Calculation::openBrackets(expr, subExprCount, error); //Start calculating 
-					if (!(int)error.errorCode)
+                    if (!error)
 					{
 						cout << "Answer: " << tmpAnswer << endl << endl; //if there is no errors - show answer
 					}
